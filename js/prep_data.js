@@ -10,62 +10,30 @@ csv데이터를 가져와 열마다 잘라서 배열에 저장
 3. 열 하나씩 잘라서 데이터 저장
 4. 저장된 데이터 반환
 */
-function processRawData(rawData) {
+function processRawData(rows) {
 
     //열로 자르기
-    let splitByLines = rawData.split("\n");
     let dates = [];
     let times = [];
     let light = [];
     let counts = [];
     let sleepWake = [];
 
-    let dateIndex = 2;
-    let timeIndex = 3;
-    let activityIndex = 5;
-    let whiteLightIndex = 7;
-
-    //해더로우 자르기
-    let headerRow = splitByLines[0].split(",");
-    let sleepWakeIndex = headerRow.length - 2;
-
-    //헤더로우 인덱스 찾기
-    for (let i = 0; i < headerRow.length; i++) {
-        if (headerRow[i] == "Activity") {
-            activityIndex = i;
-        }
-        if (headerRow[i] == "White Light") {
-            whiteLightIndex = i;
-        }
-
-        if (headerRow[i] == "Sleep/Wake") {
-            sleepWakeIndex = i;
-        }
-
-        if (headerRow[i] == "Date") {
-            dateIndex = i;
-        }
-
-        if (headerRow[i] == "Time") {
-            timeIndex = i;
-        }
-    }
-
 
     //열 하나씩 저장
-    for (let i = 1; i < splitByLines.length; i++) {
+    for (let i = 0; i < rows.length; i++) {
 
         //헤더로우를 제외하고 1번부터 데이터가 들어있어서 i-1
         let row = splitByLines[i].split(",");
-        dates[i - 1] = row[dateIndex];
-        times[i - 1] = row[timeIndex];
+        dates[i] = row[dateIndex];
+        times[i] = row[timeIndex];
 
         // Load time in GMT <-그리니치 평균시
         var timestamp = Date.parse(row[dateIndex] + " " + row[timeIndex] + " GMT");
-        times[i - 1] = timestamp;
-        light[i - 1] = parseFloat(row[whiteLightIndex]);
-        counts[i - 1] = parseFloat(row[activityIndex]);
-        sleepWake[i - 1] = parseFloat(row[sleepWakeIndex]);
+        times[i] = timestamp;
+        light[i] = parseFloat(row[whiteLightIndex]);
+        counts[i] = parseFloat(row[activityIndex]);
+        sleepWake[i] = parseFloat(row[sleepWakeIndex]);
 
     }
     return { dates, times, light, counts, sleepWake }
