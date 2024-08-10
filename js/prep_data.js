@@ -22,19 +22,16 @@ function processRawData(rows) {
 
     //열 하나씩 저장
     for (let i = 0; i < rows.length; i++) {
-
-        //헤더로우를 제외하고 1번부터 데이터가 들어있어서 i-1
-        let row = splitByLines[i].split(",");
-        dates[i] = row[dateIndex];
-        times[i] = row[timeIndex];
+        const row = rows[i];
+        dates[i] = row.date;
+        times[i] = row.time;
 
         // Load time in GMT <-그리니치 평균시
-        var timestamp = Date.parse(row[dateIndex] + " " + row[timeIndex] + " GMT");
+        var timestamp = Date.parse(row.date + " " + row.time + " GMT");
         times[i] = timestamp;
-        light[i] = parseFloat(row[whiteLightIndex]);
-        counts[i] = parseFloat(row[activityIndex]);
-        sleepWake[i] = parseFloat(row[sleepWakeIndex]);
-
+        light[i] = parseFloat(row.white_light);
+        counts[i] = parseFloat(row.activity);
+        sleepWake[i] = parseFloat((row.sleep && !isNaN(row.sleep)) ? 1 : 0);
     }
     return { dates, times, light, counts, sleepWake }
 }
@@ -53,7 +50,6 @@ function formatDataForIntegration(dates, times, light, counts, sleepWake) {
     let LIGHT_THRESHOLD = 100;
     let counter = 0;
 
-    // Loop over all epochs and store points with valid values in arrays
     for (let i = 0; i < counts.length; i++) {
         //시간 단위로 변환
         let timestamp = (times[i]) / (1000.0 * 3600.0);
@@ -178,11 +174,8 @@ function getDataForPlot(output, firstTimestamp) {
 export function onmessage(ID, rows) {
 
     //const {rawData, filename} = e.data;
-    console.log(rows)
 
-    const rawData = fs.readFileSync('/Users/jaeyong/Desktop/nodelab/js/sample.csv', 'utf-8');
-
-    const { dates, times, light, counts, sleepWake } = processRawData(rawData);
+    const { dates, times, light, counts, sleepWake } = processRawData(rows);
 
     const { minuteByMinuteTime, minuteByMinuteModelInput, minuteByMinuteSleepWake, firstTimestamp } = formatDataForIntegration(dates, times, light, counts, sleepWake);
 
