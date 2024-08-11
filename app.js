@@ -21,23 +21,43 @@ const port = 8000; // port number - ncp에서 열었던 포트 번호
 
 app.get('/predicting_dlmo', (req, res) => {
 
-  let rows
-  client.query("SELECT * FROM public.labdata WHERE id = 'test@email.com';", (err, result) => {
-    rows = result.rows
-    let { ID } = req.query;
-    const minimumTime = onmessage(ID, rows)
-    console.log('minimumTime: ' + minimumTime)
-
-    res.send('하이');
+  let { ID } = req.query;
+  client.query(`SELECT * 
+  FROM labdata 
+  WHERE id = '${ID}' 
+  ORDER BY time ASC;`, (err, result) => {
+    const raws = result.rows
+    try {
+      const minimumTime = onmessage(raws)
+      res.send(minimumTime);
+    } catch (err) {
+      console.log(err)
+      res.status(400).json({ message: err.message });
+    }
   });
 });
 
 
 app.post('/', (req, res) => {
+
   //사용자 ID, 수집시작날짜, 수집종료날짜
   let { ID, Start_time, End_time } = req.query;
-  res.send('하이');
+
+  client.query(`SELECT * 
+  FROM labdata 
+  WHERE id = '${ID}' 
+  AND time BETWEEN ${Start_time} AND ${End_time} 
+  ORDER BY time ASC;`, (err, result) => {
+    const raws = result.rows
+    try {
+      const minimumTime = onmessage(raws)
+      res.send(minimumTime);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  });
 });
+
 
 
 app.listen(port, () => {

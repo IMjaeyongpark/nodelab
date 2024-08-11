@@ -1,7 +1,7 @@
-import fs from 'fs';
 import { getCircadianOutput } from './models.js';
 
 let DELTA_T = 1 / 60.0;
+
 
 /*
 csv데이터를 가져와 열마다 잘라서 배열에 저장
@@ -10,37 +10,31 @@ csv데이터를 가져와 열마다 잘라서 배열에 저장
 3. 열 하나씩 잘라서 데이터 저장
 4. 저장된 데이터 반환
 */
-function processRawData(rows) {
+function processRawData(raws) {
 
     //열로 자르기
-    let dates = [];
     let times = [];
     let light = [];
     let counts = [];
     let sleepWake = [];
 
 
-    //열 하나씩 저장
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        dates[i] = row.date;
-        times[i] = row.time;
+    for (let i = 0; i < raws.length; i++) {
+        const raw = raws[i];
 
-        // Load time in GMT <-그리니치 평균시
-        var timestamp = Date.parse(row.date + " " + row.time + " GMT");
-        times[i] = timestamp;
-        light[i] = parseFloat(row.white_light);
-        counts[i] = parseFloat(row.activity);
-        sleepWake[i] = parseFloat((row.sleep && !isNaN(row.sleep)) ? 1 : 0);
+        times[i] = raw.time * 10000.0;
+        light[i] = parseFloat(raw.white_light);
+        counts[i] = parseFloat(raw.activity);
+        sleepWake[i] = raw.sleep;
     }
-    return { dates, times, light, counts, sleepWake }
+    return { times, light, counts, sleepWake }
 }
 
 
 /*
 데이터 전처리 후 반환
 */
-function formatDataForIntegration(dates, times, light, counts, sleepWake) {
+function formatDataForIntegration( times, light, counts, sleepWake) {
     let cumulativeSum = 0;
     let timeInHours = [];
     let lightIndexedByHours = [];
@@ -53,7 +47,6 @@ function formatDataForIntegration(dates, times, light, counts, sleepWake) {
     for (let i = 0; i < counts.length; i++) {
         //시간 단위로 변환
         let timestamp = (times[i]) / (1000.0 * 3600.0);
-
         if (isNaN(counts[i])) {
             counts[i] = 0;
         }
@@ -62,8 +55,12 @@ function formatDataForIntegration(dates, times, light, counts, sleepWake) {
             light[i] = 0;
         }
 
-        if (isNaN(sleepWake[i])) {
-            sleepWake[i] = 0;
+        if (sleepWake[i] == true) {
+            sleepWake[i] = parseFloat(1);
+        } else if (sleepWake[i] == false) {
+            sleepWake[i] = parseFloat(0)
+        } else {
+            sleepWake[i] = 0
         }
 
         //정보 저장
@@ -82,6 +79,7 @@ function formatDataForIntegration(dates, times, light, counts, sleepWake) {
             counter = counter + 1
         }
     }
+
 
     // Get first valid timestamp
     let firstTimestamp = timeInHours[0];
@@ -171,13 +169,11 @@ function getDataForPlot(output, firstTimestamp) {
 }
 
 
-export function onmessage(ID, rows) {
+export function onmessage(raws) {
 
-    //const {rawData, filename} = e.data;
-
-    const { dates, times, light, counts, sleepWake } = processRawData(rows);
-
-    const { minuteByMinuteTime, minuteByMinuteModelInput, minuteByMinuteSleepWake, firstTimestamp } = formatDataForIntegration(dates, times, light, counts, sleepWake);
+    const { times, light, counts, sleepWake } = processRawData(raws);
+    
+    const { minuteByMinuteTime, minuteByMinuteModelInput, minuteByMinuteSleepWake, firstTimestamp } = formatDataForIntegration( times, light, counts, sleepWake);
 
     let output = getCircadianOutput(minuteByMinuteTime, minuteByMinuteModelInput, minuteByMinuteSleepWake, firstTimestamp);
 

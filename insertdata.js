@@ -34,7 +34,6 @@ function processRawData(rawData) {
         Activity[i - 1] = line[2] && line[2] != "NaN" ? line[2] : null;
         White_Light[i - 1] = line[3] && line[3] != "NaN" ? line[3] : null;
         sleepWake[i - 1] = line[4] && (line[4].includes('0') || line[4].includes('1')) ? line[4] : null;
-        console.log(sleepWake[i - 1])
     }
 
     return { dates, times, Activity, White_Light, sleepWake }
@@ -45,16 +44,17 @@ function processRawData(rawData) {
 const rawData = fs.readFileSync('/Users/jaeyong/Desktop/nodelab/js/sample.csv', 'utf-8');
 
 const { dates, times, Activity, White_Light, sleepWake } = processRawData(rawData);
-
+let timestamp = []
 for (let i = 0; i < times.length; i++) {
+    timestamp[i] = Date.parse(dates[i] + " " + times[i] + " GMT");
     const query = {
-    text: "INSERT INTO labdata VALUES ($1, $2, $3, $4, $5, $6)",
-    values: ["test@email.com", dates[i], times[i], Activity[i], White_Light[i], sleepWake[i]],
+    text: "INSERT INTO labdata VALUES ($1, $2, $3, $4, $5)",
+    values: ["test@email.com", timestamp[i]/10000.0, Activity[i], White_Light[i], sleepWake[i]],
 };
 client
     .query(query)
     .then((res) => {
-        console.log(res);
+        console.log(timestamp[i]);
     })
     .catch((e) => console.error(e.stack));
 }
