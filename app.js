@@ -17,11 +17,12 @@ client.connect();
 
 // express 가져오기
 const app = express();
-const port = 8000; // port number - ncp에서 열었던 포트 번호 
+const port = 8000;
 
 app.get('/predicting_dlmo', (req, res) => {
 
   let { ID } = req.query;
+  //ID 값 오름차순 정렬
   client.query(`SELECT * 
   FROM labdata 
   WHERE id = '${ID}' 
@@ -43,6 +44,7 @@ app.post('/', (req, res) => {
   //사용자 ID, 수집시작날짜, 수집종료날짜
   let { ID, Start_time, End_time } = req.query;
 
+  //ID 값 시작시간부터 종료시간 사이의 값들 오름차순 정렬
   client.query(`SELECT * 
   FROM labdata 
   WHERE id = '${ID}' 
