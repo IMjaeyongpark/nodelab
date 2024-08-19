@@ -13,6 +13,7 @@ const client = new Client({
   password: process.env.PSQL_PASSWORD,
   port: process.env.PSQL_PORT,
 });
+
 client.connect();
 
 // express 가져오기
@@ -39,7 +40,7 @@ app.get('/predicting_dlmo', (req, res) => {
 });
 
 
-app.post('/', (req, res) => {
+app.get('/', (req, res) => {
 
   //사용자 ID, 수집시작날짜, 수집종료날짜
   let { ID, Start_time, End_time } = req.query;
