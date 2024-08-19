@@ -2,15 +2,29 @@
   "name": "nodelab",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.12.0",
+    "pg-cloudflare": "^1.1.1",
+    "pg-connection-string": "^2.6.4",
+    "pg-int8": "^1.0.1",
+    "pg-pool": "^3.6.2",
+    "pg-protocol": "^1.6.1",
+    "pg-types": "^2.2.0",
+    "pgpass": "^1.0.5",
+    "postgres-array": "^2.0.0",
+    "postgres-bytea": "^1.0.0",
+    "postgres-date": "^1.0.7",
+    "postgres-interval": "^1.2.0",
+    "split2": "^4.2.0",
+    "xtend": "^4.0.2"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "pg": "^8.12.0"
-  }
+  "license": "ISC"
 }
