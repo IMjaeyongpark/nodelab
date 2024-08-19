@@ -20,6 +20,7 @@ client.connect();
 const app = express();
 const port = 8000;
 
+//ID값을 파라미터로 받아와 DLMO계산
 app.get('/predicting_dlmo', (req, res) => {
 
   let { ID } = req.query;
@@ -39,7 +40,7 @@ app.get('/predicting_dlmo', (req, res) => {
   });
 });
 
-
+//밀리초 단위로 시작시간과 종료 시간을 파라미터로 받아와 범위안에 데이터들로 DLMO를 계산
 app.get('/', (req, res) => {
 
   //사용자 ID, 수집시작날짜, 수집종료날짜
